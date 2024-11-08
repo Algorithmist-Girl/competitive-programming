@@ -26,16 +26,60 @@ string decimal_to_binary(ll num) { string s=""; while (num > 0) { s = to_string(
 ll binary_to_decimal(string num) { ll res = 0; ll base = 1; ll len = num.length(); for(ll i = len - 1; i >= 0; i--) { if (num[i] == '1') { res += base; } base = base * 2; } return res; }
 bool is_prime(ll num) { if(num<=1)return false; for (ll i = 2; i * i <= num; i++) { if (num % i == 0) return false; } return true; }
 
+
+bool valid_ordering(vector<ll> a, vector<ll> b) {
+    sort(a.begin(), a.end());
+    sort(b.begin(), b.end());
+    loop2(x, b.size()) {
+        if(a[x] > b[x])
+            return false;
+    }
+    return true;
+}
+
+ll binary_search_compute(vector<ll> a, vector<ll> b, ll low, ll hi) {
+    if(hi - low <= 1)
+        return hi;
+
+    ll mid = (low + hi) / 2;
+    // insert mid into the list, sort and see if it's valid
+    vector<ll> new_b = b;
+    new_b.push_back(mid);
+    sort(new_b.begin(), new_b.end());
+    sort(a.begin(), a.end());
+
+    // valid so let's try to find smaller such box size "x" that could potentially still satisfy fitting all the toys. 
+    if(valid_ordering(a, new_b))
+        hi = mid;
+    // invalid so finding larger capacity box. 
+    else
+        low = mid;
+    
+    return binary_search_compute(a, b, low, hi);
+}
+
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
 
-    ll t; cin >> t; 
-    loop2(i, t) {
-
-        ll n, k; cin >> n >> k;
-        
-
+    ll n; cin >> n;
+    vector<ll> a(n), b(n-1);
+    loop2(x, n)
+        cin >> a[x];
+    loop2(x, n-1) 
+        cin >> b[x];
+    
+    if(!valid_ordering(a, b)) {
+        cout << "-1";
     }
+    else {
+        // keeping
+        ll low = 0; ll hi = pow(10, 9); 
+        // cout << "before binary search!!";
+        ll ans = binary_search_compute(a, b, low, hi);
+        cout << ans;
+    }
+
+
     return 0l;
 }
 
